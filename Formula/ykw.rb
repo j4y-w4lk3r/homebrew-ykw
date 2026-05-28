@@ -21,14 +21,19 @@ class Ykw < Formula
     libexec.install "ykw", "lib.sh", "op.sh"
     chmod 0755, libexec/"ykw"
 
-    # `bin/ykw` is a symlink to `libexec/ykw/ykw`. The script walks the
-    # symlink chain at runtime and discovers SCRIPT_DIR=libexec/ykw, which
-    # is where the helpers live.
-    bin.install_symlink libexec/"ykw"
-
     # Reference material (READMEs, exported pubkeys, encrypted secret demo).
     pkgshare.install "README.md"
     (pkgshare/"pubkeys").install Dir["pubkeys/*"] if Dir.exist?("pubkeys")
+
+    # `bin/ykw` is a thin shim that points YKW_WORKSPACE at pkgshare/ so the
+    # script finds pubkeys/keys.tsv (a symlink wouldn't carry that env var).
+    # Users override with their own YKW_WORKSPACE for a writable workspace.
+    (bin/"ykw").write <<~EOS
+      #!/bin/bash
+      export YKW_WORKSPACE="${YKW_WORKSPACE:-#{pkgshare}}"
+      exec "#{libexec}/ykw" "$@"
+    EOS
+    chmod 0755, bin/"ykw"
   end
 
   test do
