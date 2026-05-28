@@ -2,7 +2,7 @@ class Ykw < Formula
   desc "Multi-recipient YubiKey OpenPGP workflow CLI (Bash)"
   homepage "https://github.com/j4y-w4lk3r/ykw"
   url "https://github.com/j4y-w4lk3r/ykw/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "REPLACE_WITH_RELEASE_TARBALL_SHA256"
+  sha256 "fbb17a584ec91752baf00e4b67e285cc86f036d15107cd536b0518bab25d5750"
   license "MIT"
   head "https://github.com/j4y-w4lk3r/ykw.git", branch: "main"
 
