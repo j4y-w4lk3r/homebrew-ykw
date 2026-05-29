@@ -1,8 +1,8 @@
 class Ykw < Formula
   desc "Multi-recipient YubiKey OpenPGP workflow CLI (Bash)"
   homepage "https://github.com/j4y-w4lk3r/ykw"
-  url "https://github.com/j4y-w4lk3r/ykw/archive/refs/tags/v0.1.2.tar.gz"
-  sha256 "cc404b1fb85d66c86fc3cf3429b8809e0c79447e0a0e52b03866fcb73cf0e909"
+  url "https://github.com/j4y-w4lk3r/ykw/archive/refs/tags/v0.1.3.tar.gz"
+  sha256 "0d2a1da481bbeca3915aa269227955e4d2a0bf3558bd0ba596d457a23edf56cd"
   license "MIT"
   head "https://github.com/j4y-w4lk3r/ykw.git", branch: "main"
 
@@ -21,16 +21,18 @@ class Ykw < Formula
     libexec.install "ykw", "lib.sh", "op.sh"
     chmod 0755, libexec/"ykw"
 
-    # Reference material (READMEs, exported pubkeys, encrypted secret demo).
+    # README only — pubkeys + secret.txt are no longer bundled. Phase 5
+    # ships `ykw bootstrap` which materializes both from the encrypted bu
+    # bundle in B2, so packaging stale pubkeys with the formula is dead
+    # weight (and goes stale immediately whenever a YubiKey is rotated).
     pkgshare.install "README.md"
-    (pkgshare/"pubkeys").install Dir["pubkeys/*"] if Dir.exist?("pubkeys")
 
-    # `bin/ykw` is a thin shim that points YKW_WORKSPACE at pkgshare/ so the
-    # script finds pubkeys/keys.tsv (a symlink wouldn't carry that env var).
-    # Users override with their own YKW_WORKSPACE for a writable workspace.
+    # `bin/ykw` is a one-line wrapper. lib.sh decides where the workspace
+    # lives: $YKW_WORKSPACE if set, dev-checkout if .git is present beside
+    # lib.sh, otherwise $XDG_DATA_HOME/ykw (default ~/.local/share/ykw).
+    # Users run `ykw bootstrap` once after install to populate it.
     (bin/"ykw").write <<~EOS
       #!/bin/bash
-      export YKW_WORKSPACE="${YKW_WORKSPACE:-#{pkgshare}}"
       exec "#{libexec}/ykw" "$@"
     EOS
     chmod 0755, bin/"ykw"
